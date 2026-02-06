@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Install script for rclone google drive scripts and associated files
+#
+# Files: rclone-bisync, rclone-watch, rclone-gdrive.service
+# In addition to these files, rclone must be configured on the system
+
+bin_dir="$HOME/.local/bin"
+systemd_dir="$HOME/.config/systemd/user"
+systemd_unit="rclone-gdrive.service"
+
+for d in "$bin_dir" "$systemd_dir"; do
+	mkdir --parents "$d" #&> /dev/null
+done
+cp --update=none rclone-{bisync,watch} "$bin_dir"
+cp --update=none rclone-gdrive.service "$systemd_dir"
+
+systemctl --user daemon-reload
+if systemctl --user is-enabled $systemd_unit &> /dev/null; then
+	systemctl --user restart $systemd_unit
+else
+	systemctl --user --now enable $systemd_unit
+fi
